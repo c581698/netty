@@ -1,7 +1,7 @@
 ![Build project](https://github.com/netty/netty/workflows/Build%20project/badge.svg)
 
 # Netty Project
-
+`.\mvnw -s D:\Work\repository\settings.xml clean install -DskipTests`   --先在命令行运行在导入idea
 Netty is an asynchronous event-driven network application framework for rapid development of maintainable high performance protocol servers & clients.
 
 ## Links
