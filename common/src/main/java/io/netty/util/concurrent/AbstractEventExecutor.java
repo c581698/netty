@@ -62,6 +62,12 @@ public abstract class AbstractEventExecutor extends AbstractExecutorService impl
     }
 
     @Override
+    /**
+     * EventLoop采用单线程模型，每个Channel的所有I/O事件和任务都由绑定的EventLoop线程处理
+     * 如果从外部线程（如业务线程）直接操作Channel，可能导致并发问题（如ByteBuf被多个线程修改）
+     * 跨线程操作必须使用executor().execute()提交异步任务
+     * 如果返回true，不要执行耗时操作（如同步IO），否则会影响Netty的吞吐量
+     */
     public boolean inEventLoop() {
         return inEventLoop(Thread.currentThread());
     }

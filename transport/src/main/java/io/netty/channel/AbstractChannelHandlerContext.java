@@ -88,6 +88,10 @@ abstract class AbstractChannelHandlerContext implements ChannelHandlerContext, R
     private final DefaultChannelPipeline pipeline;
     private final String name;
     private final boolean ordered;
+    /**
+     * 32位int型标记：重写了ChannelInBoundHandler/ChannelOutBoundHandler中的哪些事件，在需要时被调用。
+     * channelRead、channelRegistered；bind、read、connect、write等等
+     */
     private final int executionMask;
 
     // Will be set to null if no child executor should be used, otherwise it will be set to the

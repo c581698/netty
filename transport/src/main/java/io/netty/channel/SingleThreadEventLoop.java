@@ -37,6 +37,10 @@ public abstract class SingleThreadEventLoop extends SingleThreadEventExecutor im
     protected static final int DEFAULT_MAX_PENDING_TASKS = Math.max(16,
             SystemPropertyUtil.getInt("io.netty.eventLoop.maxPendingTasks", Integer.MAX_VALUE));
 
+    /**
+     * 特殊的任务类型，主要用于在ChannelPipeline的事件处理流程结束后执行一些收尾操作。
+     * 它们通常用于确保某些逻辑（如资源清理、状态同步等）在事件处理链的末尾被执行，即使前面的 handler 抛出了异常。
+     */
     private final Queue<Runnable> tailTasks;
 
     protected SingleThreadEventLoop(EventLoopGroup parent, ThreadFactory threadFactory, boolean addTaskWakesUp) {

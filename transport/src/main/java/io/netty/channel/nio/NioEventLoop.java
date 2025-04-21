@@ -223,7 +223,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                         long selectedKeysFieldOffset = PlatformDependent.objectFieldOffset(selectedKeysField);
                         long publicSelectedKeysFieldOffset =
                                 PlatformDependent.objectFieldOffset(publicSelectedKeysField);
-
+                        // 用数组替换掉jdk原生的Set类型的keys
                         if (selectedKeysFieldOffset != -1 && publicSelectedKeysFieldOffset != -1) {
                             PlatformDependent.putObject(
                                     unwrappedSelector, selectedKeysFieldOffset, selectedKeySet);
@@ -507,6 +507,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
             try {
                 int strategy;
                 try {
+                    // 有任务就继续，没有任务就select阻塞
                     strategy = selectStrategy.calculateStrategy(selectNowSupplier, hasTasks());
                     switch (strategy) {
                     case SelectStrategy.CONTINUE:
@@ -515,7 +516,9 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                     case SelectStrategy.BUSY_WAIT:
                         // fall-through to SELECT since the busy-wait is not supported with NIO
 
+                    // 即没有taskQueue、tailQueue，在selectNow中也没有事件
                     case SelectStrategy.SELECT:
+                        // 计算定时任务的下次执行时间
                         long curDeadlineNanos = nextScheduledTaskDeadlineNanos();
                         if (curDeadlineNanos == -1L) {
                             curDeadlineNanos = NONE; // nothing on the calendar
@@ -549,6 +552,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 boolean ranTasks;
                 if (ioRatio == 100) {
                     try {
+                        // 还有未处理的IO事件
                         if (strategy > 0) {
                             processSelectedKeys();
                         }

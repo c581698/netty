@@ -454,6 +454,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     /**
      * Poll all tasks from the task queue and run them via {@link Runnable#run()} method.  This method stops running
      * the tasks in the task queue and returns if it ran longer than {@code timeoutNanos}.
+     * 如果超时后且任务大于64仍然有未执行的任务，停止直到一次调用runAllTasks
      */
     protected boolean runAllTasks(long timeoutNanos) {
         fetchFromScheduledTaskQueue();
@@ -834,6 +835,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     private void execute(Runnable task, boolean immediate) {
         boolean inEventLoop = inEventLoop();
         addTask(task);
+        // 只能让外部线程来启动，这样才能开始运行run方法中的死循环
         if (!inEventLoop) {
             startThread();
             if (isShutdown()) {
