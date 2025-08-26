@@ -653,7 +653,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                         newState = oldState;
                         wakeup = false;
                 }
-            }
+            }// 状态修改成功后退出死循环
             if (STATE_UPDATER.compareAndSet(this, oldState, newState)) {
                 break;
             }
