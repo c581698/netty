@@ -88,7 +88,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     private final boolean addTaskWakesUp;
     private final int maxPendingTasks;
     private final RejectedExecutionHandler rejectedExecutionHandler;
-
+    /*最后一次执行任务的时间*/
     private long lastExecutionTime;
 
     @SuppressWarnings({ "FieldMayBeFinal", "unused" })
@@ -453,14 +453,15 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
 
     /**
      * Poll all tasks from the task queue and run them via {@link Runnable#run()} method.  This method stops running
-     * the tasks in the task queue and returns if it ran longer than {@code timeoutNanos}.
-     * 如果超时后且任务大于64仍然有未执行的任务，停止直到一次调用runAllTasks
+     * the tasks in the task queue and returns if it ran longer than {@code timeoutNanos}.<br/>
+     * 如果本次执行任务时间超过timeoutNanos后且已执行任务数大于64仍然有未执行的任务，结束执行taskQueue，执行tailQueue后返回
+     * @param timeoutNanos 大于0时表示任务执行的时间是本次IO执行时间*任务时间占比，比如IO执行了10秒，IORate是40%，那么值就是6秒
      */
     protected boolean runAllTasks(long timeoutNanos) {
-        fetchFromScheduledTaskQueue();
+        fetchFromScheduledTaskQueue(); // 将到了执行时间的周期任务入队
         Runnable task = pollTask();
         if (task == null) {
-            afterRunningAllTasks();
+            afterRunningAllTasks(); // 没有taskQueue就执行tailQueue
             return false;
         }
 
